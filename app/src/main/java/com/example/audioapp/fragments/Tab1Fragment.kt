@@ -15,17 +15,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Chronometer
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.room.Room
 import com.example.audioapp.data.AudioRecordDao
 import com.example.audioapp.data.AudioRecords
-import com.example.audioapp.data.Records
 import com.example.audioapp.databinding.FragmentTab1Binding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.inject
 import java.io.File
 import java.io.IOException
 import java.util.Date
@@ -40,14 +40,8 @@ class Tab1Fragment : Fragment() {
     private lateinit var chronometer: Chronometer
     private var outputFile: File? = null
     private var audioFilePath: String? = null
-    private lateinit var audioRecordDao: AudioRecordDao
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        // Получение экземпляра базы данных и dao
-        val db = Room.databaseBuilder(requireContext(), Records::class.java, "audio_records.db").build()
-        audioRecordDao = db.audioRecordDao()
-    }
+    private val audioDao by inject<AudioRecordDao>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -97,8 +91,6 @@ class Tab1Fragment : Fragment() {
         audioFilePath = "${recordingsDir.absolutePath}/recording_${System.currentTimeMillis()}.wav"
         outputFile = File(audioFilePath!!)
 
-        Log.d("Recording", "Recording file saved to: $audioFilePath") // Добавлен вывод пути в лог
-
         mediaRecorder = MediaRecorder()
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -125,11 +117,10 @@ class Tab1Fragment : Fragment() {
 
         val audioRecord = AudioRecords(0, currentDate, recordTime, audioFilePath ?: "")
 
-        // Запуск корутины для выполнения операции записи на фоновом потоке
         CoroutineScope(Dispatchers.IO).launch {
-            audioRecordDao.insertRecord(audioRecord)
+            audioDao.insertRecord(audioRecord)
             withContext(Dispatchers.Main) {
-                Log.d("Recording", "Audio record saved to database")
+                Toast.makeText(context, "Запись успешно сохранена", Toast.LENGTH_SHORT).show()
             }
         }
     }

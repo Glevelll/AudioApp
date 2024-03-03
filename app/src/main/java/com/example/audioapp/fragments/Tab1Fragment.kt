@@ -18,21 +18,19 @@ import android.widget.Chronometer
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.room.Room
-import com.example.audioapp.MainActivity
 import com.example.audioapp.data.AudioRecordDao
 import com.example.audioapp.data.AudioRecords
-import com.example.audioapp.data.Records
 import com.example.audioapp.databinding.FragmentTab1Binding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.inject
 import java.io.File
 import java.io.IOException
 import java.util.Date
 
-class Tab1Fragment(private val recordsDatabase: Records) : Fragment() {
+class Tab1Fragment : Fragment() {
 
     private val RECORD_AUDIO_PERMISSION_REQUEST_CODE = 123
     private lateinit var binding: FragmentTab1Binding
@@ -42,7 +40,8 @@ class Tab1Fragment(private val recordsDatabase: Records) : Fragment() {
     private lateinit var chronometer: Chronometer
     private var outputFile: File? = null
     private var audioFilePath: String? = null
-    private lateinit var audioDao: AudioRecordDao
+
+    private val audioDao by inject<AudioRecordDao>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,8 +52,6 @@ class Tab1Fragment(private val recordsDatabase: Records) : Fragment() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.RECORD_AUDIO), RECORD_AUDIO_PERMISSION_REQUEST_CODE)
         }
-
-        audioDao = recordsDatabase.audioRecordDao()
 
         chronometer = binding.time
 

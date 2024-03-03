@@ -8,19 +8,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import com.example.audioapp.R
 import com.example.audioapp.data.AudioRecordDao
 import com.example.audioapp.data.AudioRecords
-import com.example.audioapp.data.Records
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.inject
 
-class Tab2Fragment(private val recordsDatabase: Records) : Fragment() {
+class Tab2Fragment : Fragment() {
 
-    private lateinit var audioDao: AudioRecordDao
+    private val audioDao by inject<AudioRecordDao>()
     private lateinit var recordsList: MutableList<AudioRecords>
     private lateinit var adapter: AudioRecordsAdapter
     private lateinit var recyclerView: RecyclerView
@@ -31,8 +30,6 @@ class Tab2Fragment(private val recordsDatabase: Records) : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_tab2, container, false)
-
-        audioDao = recordsDatabase.audioRecordDao()
 
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
